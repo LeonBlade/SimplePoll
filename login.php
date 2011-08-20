@@ -1,12 +1,12 @@
 <?php
 
-require_once 'inc/littlepoll.php';
+require_once 'simplepoll.php';
 
 if (isset($_POST['login']) && isset($_POST['user']) && isset($_POST['pass'])) {
-	$little_poll->login($_POST['user'], $_POST['pass']);
+	$simple_poll->login($_POST['user'], $_POST['pass']);
 }
 
-if ($little_poll->checkAdminToken()) {
+if ($simple_poll->checkAdminToken()) {
 	header('Location: admin.php');
 }
 

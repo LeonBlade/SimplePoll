@@ -3,7 +3,7 @@
 <script type="text/javascript">
 $(function()
 {
-	$.getJSON('inc/get_polls.php', {}, function(data)
+	$.getJSON('gateway.php?action=get', {}, function(data)
 	{
 		$('#polls').html('');
 	

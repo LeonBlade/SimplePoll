@@ -1,8 +1,11 @@
 <?php 
 
+ini_set('display_errors', 1);
+error_reporting(E_ALL);
+
 // require our little polls class
-require_once 'inc/littlepoll.php';
-if (!$little_poll->checkAdminToken()) {
+require_once 'simplepoll.php';
+if (!$simple_poll->checkAdminToken()) {
 	header('Location: login.php');
 }
 
@@ -89,7 +92,7 @@ $(function()
 			var option_json = JSON.stringify(options);
 
 			// create the new poll array
-			$.post('inc/create_poll.php', {name:$('#new_poll_name').val(), options:option_json}, function(data)
+			$.post('gateway.php?action=create', {name:$('#new_poll_name').val(), options:option_json}, function(data)
 			{
 				// turn to JSON
 				data = $.parseJSON(data);
@@ -119,9 +122,8 @@ $(function()
 	{
 		var poll_id = $(this).parent('.poll').attr('poll');
 		
-		$.get('inc/delete_poll.php', {id:poll_id}, function(data)
+		$.getJSON('gateway.php?action=delete', {id:poll_id}, function(data)
 		{
-			data = $.parseJSON(data);
 			if (data.success == 1)
 				getPolls();
 		});
@@ -132,9 +134,8 @@ $(function()
 	{
 		var poll_id = $(this).parent('.poll').attr('poll');
 		
-		$.get('inc/reset_poll.php', {id:poll_id}, function(data)
+		$.getJSON('gateway.php', {action:'reset', id:poll_id}, function(data)
 		{
-			data = $.parseJSON(data);
 			if (data.success == 1)
 				getPolls();
 		});
@@ -206,7 +207,7 @@ $(function()
 			var option_json = JSON.stringify(options);
 
 			// create the new poll array
-			$.post('inc/update_poll.php', {id:poll_id, name:$poll.children('.poll-name').val(), options:option_json}, function(data)
+			$.post('gateway.php?action=update', {id:poll_id, name:$poll.children('.poll-name').val(), options:option_json}, function(data)
 			{
 				// turn to JSON
 				data = $.parseJSON(data);
@@ -227,38 +228,38 @@ function getPolls()
 	$('#polls').html('');
 
 	// get the polls JSON
-	$.getJSON('inc/get_polls.php', {}, function(data)
+	$.getJSON('gateway.php', {action:'get'}, function(data) 
 	{
 		// loop through each poll
 		$.each(data, function(i, val)
 		{
 			// create a div for each poll
-			$poll_div = $('<div>').attr('poll', val['id']).addClass('round_box').addClass('poll');
+			var $poll_div = $('<div>').attr('poll', val['id']);
 			
 			// create an input for poll name
-			$poll_name = $('<input>').attr({'type':'text', 'placeholder':'poll name'}).addClass('poll-name').val(val['name']);
+			var $poll_name = $('<input>').attr({'type':'text', 'placeholder':'poll name'}).addClass('poll-name').val(val['name']);
 			// create an add option button
-			$poll_add = $('<input>').attr('type', 'button').val('Add option').addClass('poll-add-option');
+			var $poll_add = $('<input>').attr('type', 'button').val('Add option').addClass('poll-add-option');
 			// create an update button
-			$poll_update = $('<input>').attr('type', 'button').val('Update').addClass('poll-update');
+			var $poll_update = $('<input>').attr('type', 'button').val('Update').addClass('poll-update');
 			// create an reset button
-			$poll_reset = $('<input>').attr('type', 'button').val('Reset').addClass('poll-reset');
+			var $poll_reset = $('<input>').attr('type', 'button').val('Reset').addClass('poll-reset');
 			// create a delete button
-			$poll_delete = $('<input>').attr('type', 'button').val('Delete').addClass('poll-delete');
+			var $poll_delete = $('<input>').attr('type', 'button').val('Delete').addClass('poll-delete');
 			// create a div to store the options
-			$poll_options = $('<div>').addClass('poll-options');
+			var $poll_options = $('<div>').addClass('poll-options');
 			
 			var vote_total = 0;
 			$.each(val['choices'],function(j,c){vote_total+=c['votes'];});
 			
 			$.each(val['choices'], function(j, c)
 			{				
-				$options = $('<div>').addClass('option');
+				var $options = $('<div>').addClass('option');
 			
 				// set up the inputs for option and image and also the remove button
-				$o_name = $('<input>').attr({'type':'text', 'placeholder':'option'}).addClass('option-name');
-				$o_image = $('<input>').attr({'type':'text', 'placeholder':'image'}).addClass('option-image');
-				$o_remove = $('<input>').attr({'type':'button', 'value':'Remove'}).addClass('option-remove'); 
+				var $o_name = $('<input>').attr({'type':'text', 'placeholder':'option'}).addClass('option-name');
+				var $o_image = $('<input>').attr({'type':'text', 'placeholder':'image'}).addClass('option-image');
+				var $o_remove = $('<input>').attr({'type':'button', 'value':'Remove'}).addClass('option-remove'); 
 				
 				$o_name.val(c['option']);
 				$o_image.val(c['image']);
@@ -270,8 +271,8 @@ function getPolls()
 				var perc = 0;
 				if (vote_total != 0) perc = (c['votes'] / vote_total) * 100;
 
-				$vote_bar = $('<div>').addClass('vote-bar');
-				$vote_count = $('<div>').addClass('vote-count').css('width', perc+'%');
+				var $vote_bar = $('<div>').addClass('vote-bar');
+				var $vote_count = $('<div>').addClass('vote-count').css('width', perc+'%');
 				$vote_bar.append($vote_count);
 				
 				$options.append($vote_bar);
@@ -286,6 +287,7 @@ function getPolls()
 			
 			// add the poll div to the polls div
 			$('#polls').append($poll_div);
+			$poll_div.addClass('round_box').addClass('poll')
 		});
 	});
 }
