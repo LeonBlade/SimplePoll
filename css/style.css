@@ -115,6 +115,10 @@ div.choice {
 	cursor: pointer;
 }
 
+div.ui-datepicker {
+	font-size: 10px !important;
+}
+
 .option-selected {
 	background: #fafafa !important;
 	background: linear-gradient(top, #fafafa, #fdfdfd) !important;

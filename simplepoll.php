@@ -1,10 +1,28 @@
 <?php
-
-// start the session
-session_start();
+/**
+ * SimplePoll PHP Class file makes JSON polls simple.
+ * 
+ * Copyright © 2011 James Stine (leon.blade@gmail.com) 
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ */
 
 ini_set('display_errors', 1);
 error_reporting(E_ALL);
+
+// start the session
+session_start();
 
 class SimplePoll {
 	private $polls; // polls array
@@ -65,7 +83,7 @@ class SimplePoll {
 	}
 	
 	// createPoll passes in a name and a choices array
-	public function createPoll($name, $choices) {
+	public function createPoll($name, $end, $choices) {
 		// this function requires you to be an admin
 		if ($this->checkAdminToken()) {
 			// create a new array for choices
@@ -82,6 +100,7 @@ class SimplePoll {
 			$new_poll = array(
 				'id' => time(),
 				'name' => $name,
+				'end_date' => $end,
 				'total_votes' => 0,
 				'choices' => $fchoices
 			);
@@ -107,7 +126,7 @@ class SimplePoll {
 	}
 	
 	// updatePoll takes in an existing ID and the name and choices array again
-	public function updatePoll($id, $name, $choices) {
+	public function updatePoll($id, $name, $end, $choices) {
 		// this function requires you to be an admin
 		if ($this->checkAdminToken()) {
 			// grab the poll by ID
@@ -115,6 +134,9 @@ class SimplePoll {
 	
 			// change the name
 			$poll['name'] = $name;
+			
+			// change the end date
+			$poll['end_date'] = $end;
 			
 			// update the choices
 			$new_choices = array();
@@ -187,6 +209,8 @@ class SimplePoll {
 			}
 			$this->polls[$poll_id] = $poll;
 			$this->polls[$poll_id]['total_votes'] = 0;
+			// we also will reset the ID so that people who already voted can vote again
+			$this->polls[$this->getPollIDByTS($id)]['id'] = time();
 			$this->savePolls();
 			return 1;
 		}

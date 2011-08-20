@@ -1,5 +1,8 @@
 <?php
 
+ini_set('display_errors', 1);
+error_reporting(E_ALL);
+
 // require in our class
 require_once('simplepoll.php');
 
@@ -14,8 +17,8 @@ if (isset($_GET['action'])) {
 			
 			// creating a poll
 			case 'create':
-				if (isset($_POST['name']) && isset($_POST['options']))
-					echo json_encode(array('success' => $simple_poll->createPoll($_POST['name'], json_decode($_POST['options']))));
+				if (isset($_POST['name']) && isset($_POST['options']) && isset($_POST['end']))
+					echo json_encode(array('success' => $simple_poll->createPoll($_POST['name'], $_POST['end'], json_decode($_POST['options']))));
 				break;
 		
 			// getting polls either we are getting just one or all
@@ -30,11 +33,13 @@ if (isset($_GET['action'])) {
 			case 'update':
 				if (isset($_POST['id']) 		&& is_numeric($_POST['id']) 	&&
 					isset($_POST['options']) 	&& is_string($_POST['options']) && 
-					isset($_POST['name']) 		&& is_string($_POST['name'])) 	{
+					isset($_POST['name']) 		&& is_string($_POST['name']) 	&&
+					isset($_POST['end'])		&& is_string($_POST['end'])) 	{
 					$poll_id = $_POST['id'];
 					$poll_name = $_POST['name'];
 					$poll_options = $_POST['options'];
-					echo json_encode(array('success' => $simple_poll->updatePoll($poll_id, $poll_name, json_decode($poll_options, true))));
+					$poll_end = $_POST['end'];
+					echo json_encode(array('success' => $simple_poll->updatePoll($poll_id, $poll_name, $poll_end, json_decode($poll_options, true))));
 				}
 				break;
 			
@@ -64,7 +69,7 @@ if (isset($_GET['action'])) {
 			// resetting the poll count for a certain poll
 			case 'reset':
 				if (isset($_GET['id']))
-					echo json_encode(array('success', $simple_poll->resetVotes($_GET['id'])));
+					echo json_encode(array('success' => $simple_poll->resetVotes($_GET['id'])));
 		}
 			
 	}
